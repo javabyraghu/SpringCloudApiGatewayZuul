@@ -19,6 +19,7 @@ public class MyResponseFilter extends ZuulFilter {
 
 	private static final Logger LOG = LoggerFactory.getLogger(MyResponseFilter.class);
 
+
 	public boolean shouldFilter() {
 		return true;
 	}
@@ -27,9 +28,13 @@ public class MyResponseFilter extends ZuulFilter {
 		LOG.info("FROM RESPONSE FILTER");
 		RequestContext ctx = RequestContext.getCurrentContext();
 		try (final InputStream responseDataStream = ctx.getResponseDataStream()) {
-			String responseData = CharStreams.toString(new InputStreamReader(responseDataStream, "UTF-8"));
-			responseData = responseData + "MODIFIED!";
-			ctx.setResponseBody(responseData);
+			if(responseDataStream!=null) {
+				String responseData = CharStreams.toString(new InputStreamReader(responseDataStream, "UTF-8"));
+				if(!responseData.contains("notworking")) {
+					responseData = responseData + " , DATA IS MODIFIED!";
+					ctx.setResponseBody(responseData);
+				}
+			}
 		} catch (IOException e) {
 			LOG.error("Error reading body",e);
 		}
@@ -43,4 +48,5 @@ public class MyResponseFilter extends ZuulFilter {
 	public int filterOrder() {
 		return 0;
 	}
+
 }
